@@ -1,29 +1,31 @@
 import threading
 
-contador = 0
+operaciones=[]
 
-def funcion():
-    global contador
-    for i in range(1000000):
-        contador += 1
+class cuenta ():
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.contador = 0
 
+    def funcion(self, contador_total=None, contador=None):
+        self.lock.acquire()
+        try:
+            for i in range(1000000):
+                self.contador += 1
+
+        finally:
+            self.lock.release()
+
+
+contador=cuenta()
 print("Inicio programa principal")
-print("Valor Inicial: " + str(contador))
+print("Valor Inicial: ",  contador.contador )
+for i in range(3):
+    operacion = threading.Thread(target=contador.funcion)
+    operacion.start()
+    operaciones.append(operacion)
 
-thread_1=threading.Thread(target=funcion)
-thread_2=threading.Thread(target=funcion)
-thread_3=threading.Thread(target=funcion)
+for i in range(3):
+    operaciones[i].join()
 
-thread_1.start()
-thread_2.start()
-thread_3.start()
-
-thread_1.join()
-thread_2.join()
-thread_3.join()
-
-print("Valor Final: " + str(contador))
-
-
-
-
+print("Cuenta:",contador.contador )
